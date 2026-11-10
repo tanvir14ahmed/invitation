@@ -1,0 +1,219 @@
+/* ==========================================================================
+   Midnight Celestial Theme & Satisfying Micro-Animations
+   Mobile-First & Touch-Optimized
+   ========================================================================== */
+
+/* Custom Animations */
+@keyframes celestialShimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+@keyframes celestialPulse {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(244, 208, 104, 0.35), 0 0 40px rgba(76, 29, 149, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 35px rgba(244, 208, 104, 0.7), 0 0 70px rgba(147, 51, 234, 0.6);
+    }
+}
+
+@keyframes floatSlow {
+    0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-6px) rotate(1deg);
+    }
+}
+
+@keyframes rippleWave {
+    0% {
+        transform: scale(0.8);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(2.2);
+        opacity: 0;
+    }
+}
+
+/* Celestial Gold Shimmer Typography */
+.celestial-gold-text {
+    background: linear-gradient(90deg, #F4D068 0%, #FFF3D1 25%, #E5B842 50%, #FFFFFF 75%, #F4D068 100%);
+    background-size: 200% auto;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: celestialShimmer 7s linear infinite;
+    display: inline-block;
+    padding-right: 0.35em; /* Ensures trailing italic swashes like 'd' in Ahmed are never clipped */
+    padding-left: 0.08em;
+    overflow: visible;
+}
+
+/* Glassmorphic Celestial Luxury Card */
+.celestial-card {
+    background: rgba(13, 20, 46, 0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(244, 208, 104, 0.22);
+    box-shadow: 0 15px 35px -10px rgba(5, 8, 20, 0.7),
+                0 0 25px rgba(244, 208, 104, 0.05),
+                inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+                border-color 0.4s ease,
+                box-shadow 0.4s ease;
+}
+
+.celestial-card:hover, .celestial-card:active {
+    border-color: rgba(244, 208, 104, 0.6);
+    box-shadow: 0 20px 45px -10px rgba(3, 7, 18, 0.85),
+                0 0 35px rgba(244, 208, 104, 0.2),
+                inset 0 1px 2px rgba(255, 255, 255, 0.2);
+}
+
+/* Wax Seal for Tanvir & Afsa (T & A) */
+.wax-seal {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #f4d068 0%, #b8860b 55%, #0e1738 100%);
+    box-shadow: inset 2px 2px 5px rgba(255, 255, 255, 0.4),
+                inset -2px -2px 5px rgba(0, 0, 0, 0.6),
+                0 10px 30px rgba(244, 208, 104, 0.45),
+                0 0 50px rgba(30, 42, 94, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease;
+    animation: celestialPulse 3.5s infinite;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.wax-seal:active {
+    transform: scale(0.95);
+}
+
+.wax-seal-inner {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    border: 1.5px dashed rgba(255, 255, 255, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Envelope 3D Open Transitions */
+.envelope-wrapper {
+    perspective: 1200px;
+}
+
+.envelope-flap {
+    transform-origin: top center;
+    transition: transform 0.85s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.envelope-card {
+    transition: transform 1.1s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.8s ease;
+}
+
+.envelope-open .envelope-flap {
+    transform: rotateX(180deg);
+    z-index: 1;
+}
+
+.envelope-open .envelope-card {
+    transform: translateY(-80px) scale(1.03);
+}
+
+/* Sanai Audio Waveform Visualizer */
+.sanai-bar {
+    display: inline-block;
+    width: 3px;
+    background: linear-gradient(to top, #F4D068, #FFF3D1);
+    border-radius: 2px;
+    animation: sanaiWave 1.1s ease-in-out infinite alternate;
+}
+
+.sanai-bar:nth-child(1) { height: 6px; animation-delay: 0.1s; }
+.sanai-bar:nth-child(2) { height: 18px; animation-delay: 0.3s; }
+.sanai-bar:nth-child(3) { height: 12px; animation-delay: 0.2s; }
+.sanai-bar:nth-child(4) { height: 22px; animation-delay: 0.4s; }
+.sanai-bar:nth-child(5) { height: 14px; animation-delay: 0.15s; }
+
+@keyframes sanaiWave {
+    0% { height: 4px; }
+    100% { height: 22px; }
+}
+
+.sound-paused .sanai-bar {
+    animation-play-state: paused;
+    height: 4px !important;
+}
+
+/* Satisfying Scroll Reveal Transitions */
+.reveal-step {
+    opacity: 0;
+    transform: translateY(28px) scale(0.985);
+    transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+}
+
+.reveal-step.is-visible {
+    opacity: 1;
+    transform: translateY(0px) scale(1);
+}
+
+/* Scroll Progress Bar at the top */
+#scrollProgressBar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #F4D068, #E2E8F0, #F4D068);
+    z-index: 60;
+    width: 0%;
+    transition: width 0.1s ease-out;
+    box-shadow: 0 0 10px #F4D068;
+}
+
+/* Mobile Floating Bottom Bar */
+#mobileQuickBar {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(244, 208, 104, 0.3);
+    box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.6), 0 0 15px rgba(244, 208, 104, 0.15);
+    padding-bottom: env(safe-area-inset-bottom, 8px);
+}
+
+/* Smooth Touch Ripple */
+.touch-ripple {
+    position: relative;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Smooth custom scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #070B19;
+}
+::-webkit-scrollbar-thumb {
+    background: #1E2A5E;
+    border-radius: 10px;
+    border: 1px solid rgba(244, 208, 104, 0.25);
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #F4D068;
+}

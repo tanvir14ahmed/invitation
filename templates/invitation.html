@@ -1,0 +1,717 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="theme-color" content="#070B19">
+    <title>{{ couple.groom }} &amp; {{ couple.bride }} — Royal Wedding Reception</title>
+    
+    <!-- Google Fonts: Great Vibes (by Typesetit for Bride & Groom names), Amiri (Arabic Calligraphy), Cinzel (Regal Classical), Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cinzel:wght@600;700;800;900&family=Great+Vibes&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Tailwind CSS (Configured for Royal Midnight Celestial) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        midnight: {
+                            950: '#040711',
+                            900: '#070B19',
+                            850: '#0B1128',
+                            800: '#0E1738',
+                            700: '#16224F',
+                            600: '#1E2A5E',
+                        },
+                        celestial: {
+                            gold: '#F4D068',
+                            goldHover: '#FFDF78',
+                            deepGold: '#C59A27',
+                            silver: '#E2E8F0',
+                            starlight: '#FFFDF5',
+                            nebula: '#4C1D95',
+                        }
+                    },
+                    fontFamily: {
+                        greatvibes: ['"Great Vibes"', 'cursive'],
+                        arabic: ['"Amiri"', '"Traditional Arabic"', 'tahoma', 'serif'],
+                        cinzel: ['"Cinzel"', 'serif'],
+                        serif: ['"Cinzel"', 'Georgia', 'serif'],
+                        sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="bg-midnight-900 text-slate-100 font-sans antialiased selection:bg-celestial-gold selection:text-midnight-950 overflow-hidden relative min-h-screen pb-20 sm:pb-12">
+
+    <!-- Soft Shehnai Background Audio Element -->
+    <audio id="weddingAudio" loop preload="auto">
+        <source src="{% static 'audio/sanai.mp3' %}" type="audio/mpeg">
+    </audio>
+
+    <!-- Scroll Progress Bar -->
+    <div id="scrollProgressBar"></div>
+
+    <!-- Cosmic Radial Ambient Glows (Nebula Backdrops) -->
+    <div class="fixed top-0 left-1/4 w-80 sm:w-96 h-80 sm:h-96 bg-indigo-900/20 rounded-full blur-[130px] pointer-events-none -z-10"></div>
+    <div class="fixed bottom-1/4 right-1/4 w-80 sm:w-[30rem] h-80 sm:h-[30rem] bg-purple-900/15 rounded-full blur-[150px] pointer-events-none -z-10"></div>
+    <div class="fixed top-2/3 left-1/3 w-64 sm:w-80 h-64 sm:h-80 bg-amber-500/10 rounded-full blur-[120px] pointer-events-none -z-10"></div>
+
+    <!-- Canvas for Twinkling Stars, Constellation Lines & Shooting Stars -->
+    <canvas id="particleCanvas" class="fixed inset-0 pointer-events-none z-10 w-full h-full"></canvas>
+
+    <!-- Floating Audio Control Button (Soft Sanai) -->
+    <div class="fixed top-4 right-4 sm:top-5 sm:right-5 z-40 flex items-center gap-3">
+        <button id="audioToggleBtn" title="Toggle Soft Sanai Melody" 
+                class="touch-ripple flex items-center gap-2 sm:gap-2.5 px-3.5 sm:px-4 py-2 rounded-full bg-midnight-800/90 backdrop-blur-xl border border-celestial-gold/40 shadow-lg shadow-black/70 hover:border-celestial-gold transition-all text-xs tracking-wider uppercase font-medium text-slate-200 active:scale-95">
+            <span id="audioVisualizer" class="flex items-center gap-0.5 sound-paused">
+                <span class="sanai-bar"></span>
+                <span class="sanai-bar"></span>
+                <span class="sanai-bar"></span>
+                <span class="sanai-bar"></span>
+                <span class="sanai-bar"></span>
+            </span>
+            <span id="audioIcon" class="text-celestial-gold text-sm">🪈</span>
+            <span class="font-cinzel text-[11px] sm:text-xs tracking-widest font-semibold">Soft Sanai</span>
+        </button>
+    </div>
+
+
+    <!-- ======================================================================
+         INTERACTIVE MIDNIGHT CELESTIAL ENVELOPE OVERLAY (MOBILE OPTIMIZED)
+         ====================================================================== -->
+    <div id="envelopeOverlay" class="fixed inset-0 z-50 flex items-center justify-center bg-midnight-950/92 backdrop-blur-xl transition-opacity duration-700 px-4">
+        <div class="text-center max-w-lg w-full">
+            <div class="inline-flex items-center justify-center gap-2 mb-2">
+                <i class="fa-solid fa-crown text-celestial-gold text-sm sm:text-base drop-shadow-[0_0_10px_rgba(244,208,104,0.6)]"></i>
+            </div>
+            <p class="font-cinzel text-xs uppercase tracking-[0.3em] text-celestial-gold mb-2">Under Auspicious Celestial Stars</p>
+            <h2 class="font-greatvibes text-3xl sm:text-4xl text-white mb-6 font-normal drop-shadow-[0_2px_15px_rgba(244,208,104,0.3)]">
+                {{ couple.groom }} <span class="text-celestial-gold">&amp;</span> {{ couple.bride }}
+            </h2>
+
+            <!-- Envelope 3D Container -->
+            <div id="envelopeWrapper" class="envelope-wrapper relative mx-auto w-full max-w-[320px] sm:max-w-md h-60 sm:h-72">
+                <!-- Outer Envelope Backing -->
+                <div class="absolute inset-0 bg-gradient-to-b from-[#0E1738] to-[#070B19] rounded-2xl shadow-2xl border border-celestial-gold/40 overflow-hidden">
+                    <div class="absolute inset-0 opacity-20 bg-[radial-gradient(#F4D068_1px,transparent_1px)] [background-size:16px_16px]"></div>
+                    
+                    <!-- Inner Invitation Card (slides upward) -->
+                    <div class="envelope-card absolute inset-x-4 sm:inset-x-6 top-6 sm:top-8 bottom-3 sm:bottom-4 bg-[#0A1029] rounded-xl shadow-xl border border-celestial-gold/50 flex flex-col items-center justify-center p-4 sm:p-6 text-center">
+                        <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-full border border-celestial-gold/50 flex items-center justify-center mb-1.5 sm:mb-2 bg-midnight-950/60 shadow-[0_0_15px_rgba(244,208,104,0.25)]">
+                            <span class="font-greatvibes text-celestial-gold text-lg sm:text-xl">{{ couple.monogram }}</span>
+                        </div>
+                        <p class="text-[10px] sm:text-[11px] uppercase tracking-[0.3em] text-celestial-gold font-cinzel font-bold mb-1">Royal Wedding Reception</p>
+                        <p class="font-cinzel text-sm sm:text-base text-white font-semibold">{{ event.date_display }}</p>
+                        <p class="text-[11px] sm:text-xs text-slate-300 mt-1"><i class="fa-regular fa-clock text-celestial-gold mr-1"></i> {{ event.time_display }}</p>
+                    </div>
+
+                    <!-- Envelope Fold Lines (Visual SVG) -->
+                    <svg class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 400 280" fill="none">
+                        <path d="M0 280L200 150L400 280" fill="#0B1333" opacity="0.9"/>
+                        <path d="M0 280L150 135L0 0" fill="#121D47" opacity="0.6"/>
+                        <path d="M400 280L250 135L400 0" fill="#121D47" opacity="0.6"/>
+                        <path d="M0 280L200 150L400 280" stroke="#F4D068" stroke-width="0.8" opacity="0.4"/>
+                    </svg>
+
+                    <!-- Envelope Flap (Opens upward in 3D) -->
+                    <div class="envelope-flap absolute inset-x-0 top-0 h-32 sm:h-36 origin-top">
+                        <svg class="w-full h-full drop-shadow-2xl" viewBox="0 0 400 140" preserveAspectRatio="none">
+                            <polygon points="0,0 400,0 200,140" fill="#16224F" stroke="#F4D068" stroke-width="0.7"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Ornate Royal Wax Seal in Center -->
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
+                    <div id="waxSeal" class="wax-seal" title="Tap to break the royal seal & play Soft Sanai">
+                        <div class="wax-seal-inner">
+                            <span class="font-greatvibes text-white text-3xl sm:text-4xl drop-shadow-md select-none font-normal">T&amp;A</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <p class="text-celestial-gold/90 text-xs tracking-widest uppercase mt-7 animate-pulse font-cinzel">
+                ✦ Tap royal seal to unveil &amp; play Sanai ✦
+            </p>
+
+            <button id="openInvitationBtn" class="mt-4 px-8 py-3 rounded-full bg-gradient-to-r from-celestial-gold via-amber-300 to-celestial-gold text-midnight-950 text-xs font-cinzel font-black uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all shadow-[0_0_25px_rgba(244,208,104,0.4)]">
+                Unveil Invitation
+            </button>
+        </div>
+    </div>
+
+
+    <!-- ======================================================================
+         MAIN INVITATION SINGLE PAGE
+         ====================================================================== -->
+    <div id="mainContent" class="opacity-0 translate-y-8 transition-all duration-1000 ease-out relative z-20 max-w-4xl mx-auto px-4 sm:px-6 py-10 sm:py-24">
+
+        <!-- Top Monogram Crest -->
+        <header class="text-center mb-10 sm:mb-16 reveal-step">
+            <div class="inline-flex items-center justify-center gap-3 sm:gap-4 mb-4">
+                <span class="h-px w-10 sm:w-24 bg-gradient-to-r from-transparent to-celestial-gold/60"></span>
+                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full border border-celestial-gold/50 bg-midnight-800/80 backdrop-blur-md flex items-center justify-center shadow-[0_0_20px_rgba(244,208,104,0.3)]">
+                    <span class="font-greatvibes text-celestial-gold text-2xl sm:text-3xl">T&amp;A</span>
+                </div>
+                <span class="h-px w-10 sm:w-24 bg-gradient-to-l from-transparent to-celestial-gold/60"></span>
+            </div>
+
+            <!-- Bismillah in Arabic Calligraphy & Translation -->
+            <div class="mt-3 mb-4 flex flex-col items-center">
+                <div class="font-arabic text-lg sm:text-2xl md:text-3xl text-celestial-gold font-normal tracking-wide pb-2.5 sm:pb-3 leading-[2] sm:leading-[2.2] drop-shadow-[0_0_15px_rgba(244,208,104,0.35)] select-none" dir="rtl">
+                    بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
+                </div>
+                <div class="w-16 sm:w-24 h-px bg-gradient-to-r from-transparent via-celestial-gold/50 to-transparent my-1"></div>
+                <!-- English Translation Underneath -->
+                <p class="text-[10px] sm:text-xs tracking-[0.16em] sm:tracking-[0.22em] text-slate-300 font-cinzel font-semibold pt-1 uppercase max-w-md mx-auto leading-relaxed">
+                    In the name of Allah, the Most Gracious, the Most Merciful
+                </p>
+            </div>
+        </header>
+
+
+        <!-- Honoring Beloved Parents Section -->
+        <section class="celestial-card rounded-2xl sm:rounded-3xl p-5 sm:p-8 text-center mb-10 sm:mb-12 reveal-step">
+            <p class="text-[11px] sm:text-xs uppercase tracking-[0.28em] text-slate-400 font-cinzel font-medium mb-5 sm:mb-6">
+                With the blessings of our beloved parents
+            </p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 relative">
+                <!-- Groom's Parents -->
+                <div class="p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-midnight-850/60 border border-celestial-gold/20">
+                    <p class="text-[11px] uppercase tracking-widest text-celestial-gold font-cinzel font-semibold mb-1 sm:mb-2">Groom's Parents</p>
+                    <p class="font-cinzel text-lg sm:text-2xl text-white font-bold">{{ couple.groom_parents.father }}</p>
+                    <p class="text-xs sm:text-sm font-cinzel text-slate-300 mt-1">&amp; {{ couple.groom_parents.mother }}</p>
+                </div>
+
+                <!-- Bride's Parents -->
+                <div class="p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-midnight-850/60 border border-celestial-gold/20">
+                    <p class="text-[11px] uppercase tracking-widest text-celestial-gold font-cinzel font-semibold mb-1 sm:mb-2">Bride's Parents</p>
+                    <p class="font-cinzel text-lg sm:text-2xl text-white font-bold">{{ couple.bride_parents.father }}</p>
+                    <p class="text-xs sm:text-sm font-cinzel text-slate-300 mt-1">&amp; {{ couple.bride_parents.mother }}</p>
+                </div>
+            </div>
+
+            <p class="mt-5 sm:mt-6 font-cinzel text-xs sm:text-sm text-slate-300 max-w-xl mx-auto leading-relaxed">
+                Cordially request the honor of your gracious presence and heartfelt prayers at the Wedding Reception of their beloved children.
+            </p>
+        </section>
+
+
+        <!-- Hero Invitation Announcement Card (Royal Typography Overhaul) -->
+        <section class="celestial-card rounded-2xl sm:rounded-3xl p-6 sm:p-14 text-center relative overflow-hidden mb-12 sm:mb-16 tilt-card reveal-step">
+            <div class="absolute -top-16 -right-16 w-56 h-56 bg-amber-400/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-16 -left-16 w-56 h-56 bg-indigo-600/15 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="inline-flex items-center justify-center gap-2 mb-3">
+                <i class="fa-solid fa-crown text-celestial-gold text-base drop-shadow-[0_0_12px_rgba(244,208,104,0.6)]"></i>
+            </div>
+
+            <h1 class="font-cinzel text-2xl sm:text-4xl md:text-5xl text-white font-bold tracking-widest uppercase mb-2">
+                Royal Wedding Reception
+            </h1>
+            <p class="text-xs sm:text-sm uppercase tracking-[0.35em] text-slate-400 font-cinzel font-medium mb-6 sm:mb-8">
+                Celebrating the Sacred Union of
+            </p>
+
+            <!-- Royal Bride & Groom Names with Great Vibes Calligraphy -->
+            <div class="py-7 sm:py-9 my-3 border-y-2 border-celestial-gold/30 bg-gradient-to-b from-midnight-950/60 via-midnight-900/80 to-midnight-950/60 rounded-3xl relative shadow-[0_0_40px_rgba(244,208,104,0.08)] overflow-visible px-2 sm:px-6">
+                <!-- Royal Corner Embellishments -->
+                <div class="absolute top-2 left-3 text-celestial-gold/40 text-xs font-serif select-none">✦</div>
+                <div class="absolute top-2 right-3 text-celestial-gold/40 text-xs font-serif select-none">✦</div>
+                <div class="absolute bottom-2 left-3 text-celestial-gold/40 text-xs font-serif select-none">✦</div>
+                <div class="absolute bottom-2 right-3 text-celestial-gold/40 text-xs font-serif select-none">✦</div>
+
+                <div class="flex flex-col items-center justify-center gap-1 sm:gap-2 overflow-visible">
+                    <span class="font-greatvibes text-4xl sm:text-6xl md:text-7xl celestial-gold-text font-normal leading-normal py-1 pr-6 sm:pr-8 pl-2 drop-shadow-[0_4px_30px_rgba(244,208,104,0.4)]">
+                        {{ couple.groom_full }}
+                    </span>
+                    <div class="flex items-center gap-4 my-1">
+                        <span class="h-px w-10 sm:w-20 bg-gradient-to-r from-transparent to-celestial-gold/60"></span>
+                        <span class="font-greatvibes text-3xl sm:text-4xl text-celestial-gold font-normal select-none px-2">&amp;</span>
+                        <span class="h-px w-10 sm:w-20 bg-gradient-to-l from-transparent to-celestial-gold/60"></span>
+                    </div>
+                    <span class="font-greatvibes text-4xl sm:text-6xl md:text-7xl celestial-gold-text font-normal leading-normal py-1 pr-6 sm:pr-8 pl-2 drop-shadow-[0_4px_30px_rgba(244,208,104,0.4)]">
+                        {{ couple.bride_full }}
+                    </span>
+                </div>
+                <p class="text-sm sm:text-base text-celestial-gold/90 mt-2 font-greatvibes font-normal tracking-wide">
+                    Tanvir &amp; Afsa
+                </p>
+            </div>
+
+            <p class="mt-6 sm:mt-8 font-cinzel text-xs sm:text-base text-slate-200 max-w-xl mx-auto leading-relaxed">
+                "{{ event.tagline }}"
+            </p>
+
+            <!-- Key Event Highlights Pill -->
+            <div class="mt-6 sm:mt-8 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-6 text-xs sm:text-sm text-slate-200 bg-midnight-850/80 py-3 sm:py-3.5 px-5 sm:px-6 rounded-2xl sm:rounded-full border border-celestial-gold/25 max-w-2xl mx-auto font-cinzel font-semibold">
+                <div class="flex items-center gap-2">
+                    <i class="fa-regular fa-calendar-check text-celestial-gold"></i>
+                    <span>{{ event.date_display }}</span>
+                </div>
+                <span class="hidden sm:inline text-celestial-gold/50">✦</span>
+                <div class="flex items-center gap-2">
+                    <i class="fa-regular fa-clock text-celestial-gold"></i>
+                    <span>{{ event.time_display }}</span>
+                </div>
+                <span class="hidden sm:inline text-celestial-gold/50">✦</span>
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-location-dot text-celestial-gold"></i>
+                    <span>Chashara, Narayanganj</span>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Live Countdown Section -->
+        <section id="countdownTarget" data-target="{{ event.iso_date }}" class="mb-12 sm:mb-16 text-center reveal-step">
+            <p class="text-xs uppercase tracking-[0.25em] text-celestial-gold font-cinzel font-semibold mb-2">Counting Down To The Moment</p>
+            <h3 class="font-cinzel text-xl sm:text-3xl text-white font-bold mb-6 sm:mb-8">Until We Gather Under Auspicious Stars</h3>
+
+            <div class="grid grid-cols-4 gap-2 sm:gap-6 max-w-lg mx-auto">
+                <div class="celestial-card rounded-xl sm:rounded-2xl p-3 sm:p-5 border border-celestial-gold/30">
+                    <div id="countDays" class="font-royal text-2xl sm:text-5xl font-black celestial-gold-text">00</div>
+                    <div class="text-[9px] sm:text-xs uppercase tracking-widest text-slate-400 mt-1 font-mono">Days</div>
+                </div>
+                <div class="celestial-card rounded-xl sm:rounded-2xl p-3 sm:p-5 border border-celestial-gold/30">
+                    <div id="countHours" class="font-royal text-2xl sm:text-5xl font-black celestial-gold-text">00</div>
+                    <div class="text-[9px] sm:text-xs uppercase tracking-widest text-slate-400 mt-1 font-mono">Hours</div>
+                </div>
+                <div class="celestial-card rounded-xl sm:rounded-2xl p-3 sm:p-5 border border-celestial-gold/30">
+                    <div id="countMinutes" class="font-royal text-2xl sm:text-5xl font-black celestial-gold-text">00</div>
+                    <div class="text-[9px] sm:text-xs uppercase tracking-widest text-slate-400 mt-1 font-mono">Mins</div>
+                </div>
+                <div class="celestial-card rounded-xl sm:rounded-2xl p-3 sm:p-5 border border-celestial-gold/30">
+                    <div id="countSeconds" class="font-royal text-2xl sm:text-5xl font-black celestial-gold-text">00</div>
+                    <div class="text-[9px] sm:text-xs uppercase tracking-widest text-slate-400 mt-1 font-mono">Secs</div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Interactive "Send Blessings / Shower with Love" Widget -->
+        <section class="celestial-card rounded-2xl sm:rounded-3xl p-5 sm:p-10 text-center mb-12 sm:mb-16 border border-celestial-gold/35 relative overflow-hidden reveal-step">
+            <div class="absolute inset-0 bg-gradient-to-r from-amber-500/5 via-indigo-500/10 to-amber-500/5 pointer-events-none"></div>
+
+            <span class="inline-block px-3.5 py-1 rounded-full bg-celestial-gold/20 text-celestial-gold text-[11px] font-cinzel font-semibold tracking-wider uppercase mb-3">
+                ✦ Guest Interactive Wish ✦
+            </span>
+            <h3 class="font-cinzel text-xl sm:text-3xl text-white font-bold mb-2">
+                Shower <span class="font-greatvibes text-3xl sm:text-4xl text-celestial-gold font-normal">Tanvir &amp; Afsa</span> with Blessings
+            </h3>
+            <p class="text-xs sm:text-sm text-slate-300 max-w-md mx-auto mb-4">
+                Tap the heart to shower the newlyweds with starlight blessings, prayers, and celebratory confetti!
+            </p>
+
+            <!-- Bubu & Dudu Cute Couple in Blessings -->
+            <div class="mb-6 flex flex-col items-center justify-center">
+                <img id="bubuBlessingImg" src="{% static 'images/bubu-dudu-love.gif' %}" 
+                     alt="Bubu & Dudu Love" 
+                     class="w-16 h-16 sm:w-20 sm:h-20 object-contain drop-shadow-[0_4px_15px_rgba(244,208,104,0.3)] transition-transform duration-300">
+                <p id="bubuBlessingNote" class="text-[11px] text-celestial-gold/90 font-cinzel tracking-wider mt-1.5 font-medium">
+                    Bubu &amp; Dudu are celebrating with you! 💕
+                </p>
+            </div>
+
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-5">
+                <button id="sendLoveBtn" 
+                        class="touch-ripple w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-3.5 sm:py-4 rounded-full bg-gradient-to-r from-celestial-gold via-amber-400 to-celestial-gold text-midnight-950 font-cinzel font-black text-xs sm:text-sm tracking-wider uppercase shadow-[0_0_25px_rgba(244,208,104,0.4)] hover:shadow-[0_0_40px_rgba(244,208,104,0.7)] active:scale-95 transition-all">
+                    <i class="fa-solid fa-heart text-rose-600"></i>
+                    <span>Shower with Blessings</span>
+                    <i class="fa-solid fa-sparkles text-midnight-950"></i>
+                </button>
+
+                <div class="text-xs uppercase tracking-wider text-slate-400 font-cinzel">
+                    <span id="blessingsCount" class="font-cinzel font-bold text-xl sm:text-2xl text-celestial-gold transition-all inline-block">356</span> Duas &amp; Wishes Sent
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Our Chapters Section -->
+        <section class="mb-12 sm:mb-16 reveal-step">
+            <div class="text-center mb-8 sm:mb-10">
+                <p class="text-xs uppercase tracking-[0.25em] text-celestial-gold font-cinzel font-semibold mb-2">Celestial Journey</p>
+                <h3 class="font-cinzel text-2xl sm:text-4xl text-white font-bold">Written in the Stars</h3>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+                {% for story in love_story %}
+                <div class="celestial-card rounded-2xl p-5 sm:p-7 border border-celestial-gold/20 tilt-card flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-3 sm:mb-4">
+                            <span class="text-xs uppercase tracking-widest font-semibold text-celestial-gold px-3 py-1 rounded-full bg-midnight-800 border border-celestial-gold/30 font-cinzel">
+                                {{ story.period }}
+                            </span>
+                            <i class="fa-solid fa-star text-celestial-gold text-xs"></i>
+                        </div>
+                        <h4 class="font-cinzel text-lg sm:text-xl text-white font-bold mb-2 sm:mb-3">{{ story.title }}</h4>
+                        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">{{ story.desc }}</p>
+                    </div>
+                    <div class="mt-5 sm:mt-6 pt-3 sm:pt-4 border-t border-celestial-gold/15 flex items-center justify-between">
+                        <span class="text-[10px] uppercase font-mono text-slate-400">Tanvir &bull; Afsa</span>
+                        <span class="font-script text-celestial-gold text-2xl">forever</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+
+        <!-- Reception Program / Itinerary Section -->
+        <section class="mb-12 sm:mb-16 reveal-step">
+            <div class="text-center mb-8 sm:mb-10">
+                <p class="text-xs uppercase tracking-[0.25em] text-celestial-gold font-cinzel font-semibold mb-2">Schedule of Events</p>
+                <h3 class="font-cinzel text-2xl sm:text-4xl text-white font-bold">The Reception Itinerary</h3>
+            </div>
+
+            <div class="celestial-card rounded-2xl sm:rounded-3xl p-5 sm:p-10 border border-celestial-gold/30 max-w-2xl mx-auto divide-y divide-celestial-gold/15">
+                {% for item in timeline %}
+                <div class="py-4 sm:py-6 first:pt-0 last:pb-0 flex items-start gap-3 sm:gap-6 group">
+                    <div class="w-20 sm:w-28 flex-shrink-0">
+                        <span class="text-xs sm:text-sm font-semibold text-celestial-gold tracking-wider font-mono">
+                            {{ item.time }}
+                        </span>
+                    </div>
+                    <div class="relative pl-3 sm:pl-4 border-l-2 border-celestial-gold/40 group-hover:border-celestial-gold transition-colors">
+                        <h4 class="font-cinzel text-base sm:text-lg text-white font-bold mb-1 group-hover:text-celestial-gold transition-colors">
+                            {{ item.title }}
+                        </h4>
+                        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                            {{ item.desc }}
+                        </p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+
+        <!-- Venue & Location Section with Interactive Calendar & Navigation -->
+        <section class="mb-12 sm:mb-16 reveal-step">
+            <div class="text-center mb-8 sm:mb-10">
+                <p class="text-xs uppercase tracking-[0.25em] text-celestial-gold font-cinzel font-semibold mb-2">Venue &amp; Destination</p>
+                <h3 class="font-cinzel text-2xl sm:text-4xl text-white font-bold">{{ event.venue_name }}</h3>
+            </div>
+
+            <div class="celestial-card rounded-2xl sm:rounded-3xl p-6 sm:p-12 border border-celestial-gold/30 tilt-card text-center max-w-2xl mx-auto">
+                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-midnight-800 border border-celestial-gold/40 flex items-center justify-center mx-auto mb-4 sm:mb-5 text-celestial-gold text-xl sm:text-2xl shadow-[0_0_20px_rgba(244,208,104,0.3)]">
+                    <i class="fa-solid fa-building-columns"></i>
+                </div>
+                <h4 class="font-cinzel text-xl sm:text-2xl text-white font-bold mb-1">
+                    {{ event.venue_name }}
+                </h4>
+                <p class="text-xs sm:text-sm font-semibold text-celestial-gold mb-3 font-cinzel">{{ event.venue_detail }}</p>
+                <p class="text-xs sm:text-sm text-slate-200 mb-1">{{ event.address }}</p>
+                <p class="text-xs sm:text-sm text-slate-300 mb-6 sm:mb-8">{{ event.city_state }}</p>
+
+                <!-- Action Buttons: Calendar & Navigation -->
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+                    <button id="copyAddressBtn" data-address="{{ event.venue_name }} ({{ event.venue_detail }}), {{ event.address }}, {{ event.city_state }}"
+                            class="touch-ripple w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-midnight-800 border border-celestial-gold/50 text-slate-100 text-xs font-cinzel font-semibold uppercase tracking-wider hover:bg-midnight-700 active:scale-95 transition-all shadow-md">
+                        <i class="fa-regular fa-copy text-celestial-gold"></i>
+                        <span>Copy Address</span>
+                    </button>
+
+                    <a href="{{ event.maps_url }}" target="_blank" rel="noopener noreferrer"
+                       class="touch-ripple w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-midnight-800 border border-celestial-gold/50 text-slate-100 text-xs font-cinzel font-semibold uppercase tracking-wider hover:bg-midnight-700 active:scale-95 transition-all shadow-md">
+                        <i class="fa-solid fa-map-location-dot text-celestial-gold"></i>
+                        <span>Open in Google Maps</span>
+                    </a>
+
+                    <button id="downloadIcsBtn"
+                            class="touch-ripple w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-celestial-gold via-amber-400 to-celestial-gold text-midnight-950 text-xs font-cinzel font-black uppercase tracking-wider active:scale-95 transition-all shadow-[0_0_20px_rgba(244,208,104,0.3)]">
+                        <i class="fa-regular fa-calendar-plus text-midnight-950"></i>
+                        <span>Add to Calendar</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Interactive Named Regards & Contacts Section -->
+        <section class="mb-12 sm:mb-16 reveal-step">
+            <div class="text-center mb-8">
+                <p class="text-xs uppercase tracking-[0.25em] text-celestial-gold font-cinzel font-semibold mb-2">Warm Regards &amp; Inquiries</p>
+                <h3 class="font-cinzel text-2xl sm:text-4xl text-white font-bold">Event Contacts</h3>
+                <p class="text-xs sm:text-sm text-slate-400 mt-2">
+                    For directions or any assistance on the wedding reception day:
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl mx-auto">
+                {% for contact in contacts %}
+                <div class="celestial-card rounded-2xl p-5 sm:p-6 border border-celestial-gold/30 text-center flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 rounded-full bg-midnight-800 border border-celestial-gold/40 flex items-center justify-center mx-auto mb-3 text-celestial-gold text-lg shadow-[0_0_15px_rgba(244,208,104,0.2)]">
+                            <i class="fa-solid fa-user-tie"></i>
+                        </div>
+                        <h4 class="font-cinzel text-lg sm:text-xl text-white font-bold mb-0.5">
+                            {{ contact.name }}
+                        </h4>
+                        <p class="text-[11px] uppercase tracking-wider text-celestial-gold font-mono mb-2">{{ contact.role }}</p>
+                        <p class="font-mono text-lg text-slate-200 font-semibold mb-4">
+                            {{ contact.display_phone }}
+                        </p>
+                    </div>
+
+                    <div class="flex items-center justify-center gap-2 pt-2">
+                        <a href="tel:{{ contact.phone }}" 
+                           class="touch-ripple flex-1 inline-flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-midnight-800 hover:bg-midnight-700 active:scale-95 border border-slate-600 text-xs font-cinzel font-semibold uppercase tracking-wider text-slate-200 transition-all">
+                            <i class="fa-solid fa-phone-flip text-celestial-gold"></i>
+                            <span>Call</span>
+                        </a>
+                        <a href="https://api.whatsapp.com/send?phone={{ contact.clean_phone }}&text=Assalamu%20Alaikum%20{{ contact.name }},%20regarding%20the%20Wedding%20Reception%20of%20Tanvir%20and%20Afsa" 
+                           target="_blank" rel="noopener noreferrer"
+                           class="touch-ripple flex-1 inline-flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-xs font-cinzel font-semibold uppercase tracking-wider text-white transition-all shadow-md">
+                            <i class="fa-brands fa-whatsapp text-sm"></i>
+                            <span>WhatsApp</span>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+
+        <!-- Dress Code & Interactive Color Palette -->
+        <section class="mb-12 sm:mb-16 reveal-step">
+            <div class="text-center mb-6 sm:mb-8">
+                <p class="text-xs uppercase tracking-[0.25em] text-celestial-gold font-cinzel font-semibold mb-2">Attire Guide</p>
+                <h3 class="font-cinzel text-2xl sm:text-3xl text-white font-bold">{{ event.dress_code }}</h3>
+                <p class="text-xs sm:text-sm text-slate-300 mt-2 max-w-md mx-auto">
+                    {{ event.dress_description }}
+                </p>
+            </div>
+
+            <div class="celestial-card rounded-2xl p-5 sm:p-8 max-w-xl mx-auto border border-celestial-gold/30 text-center">
+                <p class="text-[11px] uppercase tracking-widest text-slate-400 mb-4 font-mono">✦ Tap any swatch for attire suggestions ✦</p>
+
+                <!-- Color Swatches -->
+                <div class="flex items-center justify-center gap-3 sm:gap-5 mb-5 flex-wrap">
+                    {% for color in palette %}
+                    <div class="palette-swatch flex flex-col items-center cursor-pointer transition-all duration-300 rounded-full" data-color="{{ color.hex }}">
+                        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full border-2 border-celestial-gold/60 shadow-lg transition-transform active:scale-95" style="background-color: {{ color.hex }};"></div>
+                        <span class="text-[10px] sm:text-xs text-slate-300 mt-2 font-medium">{{ color.name }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Dynamic Tip Box -->
+                <div id="paletteTipBox" class="p-3.5 rounded-xl bg-midnight-850 border border-celestial-gold/25 text-xs text-celestial-gold italic transition-opacity duration-300">
+                    <span id="paletteTipText">Celestial Gold: Shimmering zardozi, golden silk borders, metallic accents, and warm gold jewelry.</span>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Database-Free Interactive RSVP Form -->
+        <section id="rsvpSection" class="mb-12 sm:mb-16 reveal-step">
+            <div class="text-center mb-8">
+                <p class="text-xs uppercase tracking-[0.25em] text-celestial-gold font-cinzel font-semibold mb-2">Grace Us With Your Presence</p>
+                <h3 class="font-cinzel text-2xl sm:text-4xl text-white font-bold">Kindly RSVP</h3>
+                <p class="text-xs sm:text-sm text-slate-400 mt-1">Please confirm your attendance so we may warmly receive you.</p>
+            </div>
+
+            <div class="celestial-card rounded-2xl sm:rounded-3xl p-5 sm:p-12 border border-celestial-gold/30 max-w-xl mx-auto">
+                <form id="rsvpForm" class="space-y-5 sm:space-y-6">
+                    <!-- Attendance Radio Toggle -->
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-slate-300 font-cinzel font-semibold mb-3 text-center">
+                            Will you join us in celebrating?
+                        </label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="cursor-pointer border border-celestial-gold/40 rounded-xl p-3 sm:p-3.5 text-center has-[:checked]:bg-celestial-gold/20 has-[:checked]:border-celestial-gold transition-all active:scale-95">
+                                <input type="radio" name="attendance" value="Joyfully Attending" checked class="hidden">
+                                <span class="font-cinzel text-xs sm:text-sm font-bold text-white block">Joyfully Attending</span>
+                                <span class="text-[10px] text-celestial-gold">Honored to be there!</span>
+                            </label>
+                            <label class="cursor-pointer border border-slate-700 rounded-xl p-3 sm:p-3.5 text-center has-[:checked]:bg-slate-800 has-[:checked]:border-slate-500 transition-all active:scale-95">
+                                <input type="radio" name="attendance" value="Regretfully Declining" class="hidden">
+                                <span class="font-cinzel text-xs sm:text-sm font-bold text-slate-300 block">Regretfully Declining</span>
+                                <span class="text-[10px] text-slate-400">Blessings from afar</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Full Name -->
+                    <div>
+                        <label for="rsvpName" class="block text-xs uppercase tracking-wider text-slate-300 font-cinzel font-semibold mb-1.5">
+                            Your Full Name(s) / Family Name
+                        </label>
+                        <input type="text" id="rsvpName" required placeholder="e.g. Mr. & Mrs. Rahman"
+                               class="w-full px-4 py-3 rounded-xl bg-midnight-950/80 border border-celestial-gold/30 text-white text-sm focus:outline-none focus:ring-2 focus:ring-celestial-gold">
+                    </div>
+
+                    <!-- Guests Count -->
+                    <div>
+                        <label for="rsvpGuests" class="block text-xs uppercase tracking-wider text-slate-300 font-cinzel font-semibold mb-1.5">
+                            Number of Guests Attending
+                        </label>
+                        <select id="rsvpGuests"
+                                class="w-full px-4 py-3 rounded-xl bg-midnight-950/80 border border-celestial-gold/30 text-white text-sm focus:outline-none focus:ring-2 focus:ring-celestial-gold font-mono">
+                            <option value="1" class="bg-midnight-900">1 Person</option>
+                            <option value="2" selected class="bg-midnight-900">2 Persons</option>
+                            <option value="3" class="bg-midnight-900">3 Persons</option>
+                            <option value="4" class="bg-midnight-900">4 Persons</option>
+                            <option value="5+" class="bg-midnight-900">5+ Family Members</option>
+                        </select>
+                    </div>
+
+                    <!-- Warm Note or Dua -->
+                    <div>
+                        <label for="rsvpNote" class="block text-xs uppercase tracking-wider text-slate-300 font-cinzel font-semibold mb-1.5">
+                            Warm Wishes &amp; Duas for Tanvir &amp; Afsa
+                        </label>
+                        <textarea id="rsvpNote" rows="2" placeholder="Send your prayers and heartfelt wishes..."
+                                  class="w-full px-4 py-3 rounded-xl bg-midnight-950/80 border border-celestial-gold/30 text-white text-sm focus:outline-none focus:ring-2 focus:ring-celestial-gold"></textarea>
+                    </div>
+
+                    <!-- Direct Send Action via WhatsApp to Tanvir Ahmed -->
+                    <div class="pt-2">
+                        <button id="sendWhatsAppBtn" data-phone="8801823555505"
+                                class="touch-ripple w-full inline-flex items-center justify-center gap-2.5 px-6 py-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-cinzel font-bold text-xs sm:text-sm tracking-wider uppercase shadow-lg shadow-emerald-700/40 transition-all">
+                            <i class="fa-brands fa-whatsapp text-xl"></i>
+                            <span>Confirm &amp; Send RSVP via WhatsApp</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+
+        <!-- Footer -->
+        <footer class="text-center pt-8 border-t border-celestial-gold/20 reveal-step mb-12">
+            <div class="font-script text-celestial-gold text-3xl sm:text-4xl mb-2">{{ couple.hashtag }}</div>
+            <p class="font-cinzel text-slate-300 text-xs sm:text-sm mb-4">
+                We eagerly await your gracious presence to make our special day truly blessed.
+            </p>
+
+            <button id="replayEnvelopeBtn" class="inline-flex items-center gap-2 text-xs text-celestial-gold hover:text-white transition-colors uppercase tracking-widest mt-2 active:scale-95 font-cinzel">
+                <i class="fa-solid fa-envelope-open-text"></i>
+                <span>Replay Royal Wax Seal Envelope</span>
+            </button>
+
+            <!-- Developer Info -->
+            <div class="mt-5 text-[11px] font-cinzel text-slate-400">
+                Crafted with <i class="fa-solid fa-heart text-rose-500 text-[10px] mx-0.5 animate-pulse"></i> by 
+                <a href="https://tanvir.codelab-by-tnv.top/" target="_blank" rel="noopener noreferrer" 
+                   class="text-celestial-gold hover:text-white font-bold underline decoration-celestial-gold/50 hover:decoration-celestial-gold transition-colors ml-0.5">
+                    Tanvir Ahmed
+                </a>
+            </div>
+
+            <p class="text-[10px] uppercase tracking-widest text-slate-500 mt-3 font-mono">
+                &copy; 2026 Tanvir Ahmed &amp; Afsa Jahan Rimi. All Rights Reserved.
+            </p>
+        </footer>
+
+    </div>
+
+
+    <!-- ======================================================================
+         MOBILE FLOATING QUICK ACTION BAR (STICKY BOTTOM)
+         ====================================================================== -->
+    <div id="mobileQuickBar" class="fixed bottom-3 inset-x-3 sm:hidden z-40 bg-midnight-900/95 rounded-2xl flex items-center justify-around py-2.5 px-2 transition-all duration-500 transform translate-y-24 opacity-0 border border-celestial-gold/30">
+        <!-- Call Button -->
+        <button id="mobileCallBtn" class="flex flex-col items-center justify-center text-slate-200 active:scale-90 transition-transform">
+            <div class="w-10 h-10 rounded-full bg-midnight-800 border border-celestial-gold/40 flex items-center justify-center text-celestial-gold text-sm shadow-sm">
+                <i class="fa-solid fa-phone"></i>
+            </div>
+            <span class="text-[9px] uppercase tracking-wider font-cinzel font-semibold mt-1">Call</span>
+        </button>
+
+        <!-- WhatsApp RSVP -->
+        <a href="https://api.whatsapp.com/send?phone=8801823555505&text=Assalamu%20Alaikum%20Tanvir,%20regarding%20the%20Wedding%20Reception%20of%20Tanvir%20and%20Afsa" 
+           target="_blank" rel="noopener noreferrer"
+           class="flex flex-col items-center justify-center text-slate-200 active:scale-90 transition-transform">
+            <div class="w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center text-white text-base shadow-sm">
+                <i class="fa-brands fa-whatsapp"></i>
+            </div>
+            <span class="text-[9px] uppercase tracking-wider font-cinzel font-semibold mt-1">RSVP</span>
+        </a>
+
+        <!-- Map Navigation -->
+        <a href="{{ event.maps_url }}" target="_blank" rel="noopener noreferrer"
+           class="flex flex-col items-center justify-center text-slate-200 active:scale-90 transition-transform">
+            <div class="w-10 h-10 rounded-full bg-midnight-800 border border-celestial-gold/40 flex items-center justify-center text-celestial-gold text-sm shadow-sm">
+                <i class="fa-solid fa-location-arrow"></i>
+            </div>
+            <span class="text-[9px] uppercase tracking-wider font-cinzel font-semibold mt-1">Venue</span>
+        </a>
+
+        <!-- Shower Love / Blessings -->
+        <button id="mobileBlessingBtn" class="flex flex-col items-center justify-center text-slate-200 active:scale-90 transition-transform">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-r from-celestial-gold to-amber-400 flex items-center justify-center text-midnight-950 text-sm shadow-[0_0_10px_rgba(244,208,104,0.4)]">
+                <i class="fa-solid fa-heart text-rose-600"></i>
+            </div>
+            <span class="text-[9px] uppercase tracking-wider font-cinzel font-semibold mt-1 text-celestial-gold">Blessings</span>
+        </button>
+    </div>
+
+
+    <!-- ======================================================================
+         MOBILE CALL MODAL (CHOOSE CONTACT)
+         ====================================================================== -->
+    <div id="callModal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+        <div class="w-full max-w-sm bg-midnight-850 border border-celestial-gold/40 rounded-3xl p-6 text-center shadow-2xl">
+            <div class="w-12 h-12 rounded-full bg-midnight-800 border border-celestial-gold/40 flex items-center justify-center mx-auto mb-3 text-celestial-gold text-lg">
+                <i class="fa-solid fa-phone-volume"></i>
+            </div>
+            <h4 class="font-cinzel text-xl text-white font-bold mb-1">Direct Call Assistance</h4>
+            <p class="text-xs text-slate-400 mb-5 font-cinzel">Select who you would like to reach:</p>
+
+            <div class="space-y-3">
+                <a href="tel:+8801823555505" 
+                   class="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-midnight-800 border border-celestial-gold/30 text-left active:scale-98 transition-all">
+                    <div>
+                        <p class="font-cinzel text-base font-bold text-white">Tanvir Ahmed</p>
+                        <p class="text-[10px] text-celestial-gold font-mono">01823-555505 &bull; Groom</p>
+                    </div>
+                    <i class="fa-solid fa-phone text-celestial-gold text-sm"></i>
+                </a>
+
+                <a href="tel:+8801911917926" 
+                   class="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-midnight-800 border border-celestial-gold/30 text-left active:scale-98 transition-all">
+                    <div>
+                        <p class="font-cinzel text-base font-bold text-white">Faisal Ahmed</p>
+                        <p class="text-[10px] text-celestial-gold font-mono">01911-917926 &bull; Coordinator</p>
+                    </div>
+                    <i class="fa-solid fa-phone text-celestial-gold text-sm"></i>
+                </a>
+            </div>
+
+            <button id="closeCallModalBtn" class="mt-5 w-full py-2.5 rounded-xl bg-slate-800 text-xs text-slate-300 font-cinzel font-semibold uppercase tracking-wider">
+                Cancel
+            </button>
+        </div>
+    </div>
+
+
+    <!-- Floating Toast Notification -->
+    <div id="toast" class="fixed bottom-20 sm:bottom-6 right-6 z-50 px-5 py-3 rounded-full bg-celestial-gold text-midnight-950 text-xs font-bold tracking-wide shadow-2xl opacity-0 translate-y-4 pointer-events-none transition-all duration-300 font-cinzel">
+        Notification
+    </div>
+
+    <!-- Main JavaScript Logic -->
+    <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>
